@@ -1,9 +1,7 @@
 <!DOCTYPE HTML>
 
 <html>
-
 	<body>
-    
 		<style>
 			table {
 				width: 50%
@@ -16,27 +14,27 @@
 
 				<tr>
 					<td align="left">Initial Principal ($):</td>
-					<td align="left"><input type="number" name="initialprincipal" min="0" style="width: 12em;"/></td>
+					<td align="left"><input type="number" name="initialprincipal" min="0"/></td>
 				</tr>
 
 				<tr>
 					<td align="left">Time Extent (yr.):</td> 
-					<td align="left"><input type="number" name="timeextent" min="1" max="100" style="width: 12em;"/></td>
+					<td align="left"><input type="number" name="timeextent" min="1"/></td>
 				</tr>
 
 				<tr>
-					<td align="left">Contributions/Withdrawals (+-$/yr.):</td> 
-					<td align="left"><input type="number" name="addedamount" style="width: 12em;"/></td>
+				    <td align="left">Contributions/Withdrawals (+-$/yr.):</td> 
+					<td align="left"><input type="number" name="addedamount"/></td>
 				</tr>
 
 				<tr>
 					<td align="left">Min. Interest Rate (%/yr.):</td> 
-					<td align="left"><input type="number" name="mininterest" min="0" style="width: 12em;"/></td>
+					<td align="left"><input type="number" name="mininterest" min="0"/></td>
 				</tr>
 
 				<tr>
 					<td align="left">Max. Interest Rate (%/yr.):</td> 
-					<td align="left"><input type="number" name="maxinterest" min="1" style="width: 12em;"/></td>
+					<td align="left"><input type="number" name="maxinterest" min="1"/></td>
 				</tr>
 
 			</table>
@@ -60,17 +58,17 @@
 				var maxinterest = Number(document.getElementById("intcalcdata").elements[4].value)
 
 				// Create data vectors and arrays
-				var timearr = [];
+				var timearr = []
 				for (var i = 0; i < timeextent+1; i++) {
   					timearr.push(i)
 				}
 
-				var intarr = [];
+				var intarr = []
 				for (var i = mininterest; i < maxinterest+1; i++) {
   					intarr.push(i)
 				}
 
-				var invval = [];
+				var invval = []
 				for (var i = 0; i < intarr.length; i++) {
 					invval[i] = [(intitialprincipal)]
 				}
@@ -92,7 +90,7 @@
 				}
 
 				//Structure data to plot
-				var calcdata = [];
+				var calcdata = []
 				for (var i = 0; i < intarr.length; i++) {
 					calcdata[i]=
 					{
@@ -116,75 +114,97 @@
 				)
 
 				//Plot data
-				Chart.Legend.prototype.afterFit = function() {
-   			this.height = this.height + 10
-				};
+				Chart.Legend.prototype.beforeUpdate = function() {
+   				this.height = this.height + 10
+				}
 
 				new Chart(document.getElementById("line-chart"), {
 				type: 'line',
 					data: {
-	  				labels: timearr,
+	  					labels: timearr,
 						datasets: calcdata
 					},
 					options: {
-					  layout: {
-     		      padding: {
-      		      left: 20,
-      		      right: 40,
-      		      top: 20,
-        		    bottom: 20
-        		  }
-       			},
-			 			title: {
-      			 	display: true,
-      			 	text: 'Interest Rate (%)',
-						 	fontSize: 15,
-						 	fontColor: "black"
-    	 			},
-			 			legend: {
-        		 	labels: {
-        		  	fontColor: "rgb(0,0,0)",
-      		   	}
-      		 	},
-					 	scales: {
-      		   	yAxes: [{
-       		    	scaleLabel: {
-       		       	display: true,
-        		    	labelString: 'Value ($)',
-								  fontSize: 20,
-								  fontColor: "black"
-          			},
-								ticks: {
-             		 fontSize: 15,
+						maintainAspectRatio: true,
+						responsive: true,
+						layout: {
+            				padding: {
+            				}
+        				},
+						title: {
+      						display: true,
+      						text: 'Interest Rate (%)',
+							fontColor: "black",
+    					},
+						legend: {
+            				labels: {
+                				fontColor: "black",
+            				}
+        				},
+						scales: {
+        					yAxes: [{
+          						scaleLabel: {
+            						display: true,
+            						labelString: 'Value ($)',
 									fontColor: "black"
-           		  },
+          						},
+								ticks: {
+									fontColor: "black"
+            					},
 								gridLines: {
-             		 color: "rgb(125, 125, 125)",
-           		  }
-        			}],
+                					color: "rgb(125, 125, 125)",
+            					}
+        					}],
 							xAxes: [{
 								scaleLabel: {
-						  		display: true,
-            			labelString: 'Time (yr.)',
-						  		fontSize: 20,
-						  		fontColor: "black"
+									display: true,
+            						labelString: 'Time (yr.)',
+									fontColor: "black"
 								},
 								ticks: {
-             		  fontSize: 15,
 									fontColor: "black"
-          		  },
+            					},
 								gridLines: {
-             		  color: "rgb(125, 125, 125)",
-           		 	}
+                					color: "rgb(125, 125, 125)",
+            					}
 							}],
 						}
-					}
+					},
+								
+					//Dynamically Resize Plot Elements
+					plugins: [{
+						afterInit: function(c) {
+        					var chartHeight = c.chart.height
+							c.options.legend.labels.fontSize = chartHeight * 2.5 / 100
+							c.options.title.fontSize = chartHeight * 4 / 100;
+						},
+						resize: function(c) {
+        					var chartHeight = c.chart.height
+							c.options.legend.labels.fontSize = chartHeight * 2.5 / 100
+							c.options.title.fontSize = chartHeight * 4 / 100;
+						},
+      					beforeUpdate: function(c) {
+        					var chartHeight = c.chart.height
+							c.options.legend.labels.fontSize = chartHeight * 2.5 / 100
+							c.options.title.fontSize = chartHeight * 4 / 100
+							c.options.layout.padding.left = chartHeight / 100
+							c.options.layout.padding.right = chartHeight / 100
+							c.options.layout.padding.top = chartHeight / 100
+							c.options.layout.padding.bottom = chartHeight / 100
+        					c.scales['y-axis-0'].options.ticks.fontSize = chartHeight * 2.5 / 100
+							c.scales['y-axis-0'].options.scaleLabel.fontSize = chartHeight * 4 / 100
+							c.scales['x-axis-0'].options.ticks.fontSize = chartHeight * 2.5 / 100
+							c.scales['x-axis-0'].options.scaleLabel.fontSize = chartHeight * 4 / 100 
+      					}
+   					}]
 				})
+
 			}
+
 		</script>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-
+					
 	</body>
 
 </html>
