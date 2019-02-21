@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+
+<html>
+
+	<body>
+    
+		<style>
+			table {
+				width: 50%
+			}
+			tr:hover {background-color: rgb(220,220,220)}
+		</style>
+
+		<form id="intcalcdata">
+			<table>
+
+				<tr>
+					<td align="left">Initial Principal ($):</td>
+					<td align="left"><input type="number" name="initialprincipal" min="0" style="width: 12em;"/></td>
+				</tr>
+
+				<tr>
+					<td align="left">Time Extent (yr.):</td> 
+					<td align="left"><input type="number" name="timeextent" min="1" max="100" style="width: 12em;"/></td>
+				</tr>
+
+				<tr>
+					<td align="left">Contributions/Withdrawals (+-$/yr.):</td> 
+					<td align="left"><input type="number" name="addedamount" style="width: 12em;"/></td>
+				</tr>
+
+				<tr>
+					<td align="left">Min. Interest Rate (%/yr.):</td> 
+					<td align="left"><input type="number" name="mininterest" min="0" style="width: 12em;"/></td>
+				</tr>
+
+				<tr>
+					<td align="left">Max. Interest Rate (%/yr.):</td> 
+					<td align="left"><input type="number" name="maxinterest" min="1" style="width: 12em;"/></td>
+				</tr>
+
+			</table>
+		</form> 
+  
+		<button onclick="InterestCalc()">Calculate and Plot</button><br></br>
+
+		<div align="center">
+			<canvas id="line-chart" style="width: 100%; border:2px solid rgb(220,220,220)"></canvas>
+		</div>
+
+		<script>
+
+			function InterestCalc() {
+		
+				// Get input data
+				var intitialprincipal = Number(document.getElementById("intcalcdata").elements[0].value)
+				var timeextent = Number(document.getElementById("intcalcdata").elements[1].value)
+				var addedamount = Number(document.getElementById("intcalcdata").elements[2].value)
+				var mininterest = Number(document.getElementById("intcalcdata").elements[3].value)
+				var maxinterest = Number(document.getElementById("intcalcdata").elements[4].value)
+
+				// Create data vectors and arrays
+				var timearr = [];
+				for (var i = 0; i < timeextent+1; i++) {
+  					timearr.push(i)
+				}
+
+				var intarr = [];
+				for (var i = mininterest; i < maxinterest+1; i++) {
+  					intarr.push(i)
+				}
+
+				var invval = [];
+				for (var i = 0; i < intarr.length; i++) {
+					invval[i] = [(intitialprincipal)]
+				}
+
+				var principal = [intitialprincipal];
+				for (var i = 1; i < timearr.length; i++){
+					principal[i]=principal[i-1]+addedamount
+				}
+
+				// Calculate compound interest and investment value vs. time
+				for (var i = 0; i < intarr.length; i++) {
+					for (var j = 1; j < timearr.length; j++){
+						if (invval[i][j-1] > 0) {
+							invval[i][j] = invval[i][j-1]*(1+(intarr[i]/100))+addedamount
+						} else {
+							invval[i][j] = invval[i][j-1]+addedamount
+						}
+					}
+				}
+
+				//Structure data to plot
+				var calcdata = [];
+				for (var i = 0; i < intarr.length; i++) {
+					calcdata[i]=
+					{
+						data: invval[i],
+						label: intarr[i],
+						fill: false,
+						borderColor: 'rgb('+(255/intarr.length)*i+','+0+','+((-255/intarr.length)*i+255)+')',
+						pointRadius: 0
+					}
+				}
+
+				calcdata.unshift(
+					{
+						data: principal,
+						label: "0 (Principal value)",
+						fill: false,
+						borderColor: "rgb(0,0,0)",
+						pointRadius: 0,
+						borderWidth: 4
+					}
+				)
+
+				//Plot data
+				Chart.Legend.prototype.afterFit = function() {
+   			this.height = this.height + 10
+				};
+
+				new Chart(document.getElementById("line-chart"), {
+				type: 'line',
+					data: {
+	  				labels: timearr,
+						datasets: calcdata
+					},
+					options: {
+					  layout: {
+     		      padding: {
+      		      left: 20,
+      		      right: 40,
+      		      top: 20,
+        		    bottom: 20
+        		  }
+       			},
+			 			title: {
+      			 	display: true,
+      			 	text: 'Interest Rate (%)',
+						 	fontSize: 15,
+						 	fontColor: "black"
+    	 			},
+			 			legend: {
+        		 	labels: {
+        		  	fontColor: "rgb(0,0,0)",
+      		   	}
+      		 	},
+					 	scales: {
+      		   	yAxes: [{
+       		    	scaleLabel: {
+       		       	display: true,
+        		    	labelString: 'Value ($)',
+								  fontSize: 20,
+								  fontColor: "black"
+          			},
+								ticks: {
+             		 fontSize: 15,
+									fontColor: "black"
+           		  },
+								gridLines: {
+             		 color: "rgb(125, 125, 125)",
+           		  }
+        			}],
+							xAxes: [{
+								scaleLabel: {
+						  		display: true,
+            			labelString: 'Time (yr.)',
+						  		fontSize: 20,
+						  		fontColor: "black"
+								},
+								ticks: {
+             		  fontSize: 15,
+									fontColor: "black"
+          		  },
+								gridLines: {
+             		  color: "rgb(125, 125, 125)",
+           		 	}
+							}],
+						}
+					}
+				})
+			}
+		</script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+	</body>
+
+</html>
